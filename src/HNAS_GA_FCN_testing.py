@@ -12,8 +12,21 @@ from keras.layers import BatchNormalization
 from keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.preprocessing import image_dataset_from_directory
 
+
+train_dir="/home/shubhransu_etc/project_sys22/data/thermogram/train"
+validation_dir=train_dir
+batch_size=64
+test_train_split=0.2
+train_data = image_dataset_from_directory(\
+      train_dir,color_mode="grayscale",image_size=(256,256) ,\
+      subset='training',seed=12, validation_split=test_train_split,\
+      batch_size=batch_size)
+validation_data = image_dataset_from_directory(validation_dir,
+      color_mode="grayscale",image_size=(256,256), subset='validation',seed=12,\
+      validation_split=test_train_split,batch_size=batch_size)
+
 def build_model(layer_dims, input_shape=(256,256,3,),len_classes=3, dropout_rate=0.2,activation='relu'):
-    print(1)
+    #print(1)
     """Function to build a model with specified layer dimensions and activation function."""
     model = Sequential()
     for i, dim in enumerate(layer_dims):
@@ -23,11 +36,21 @@ def build_model(layer_dims, input_shape=(256,256,3,),len_classes=3, dropout_rate
         else:
             model.add(Conv2D(dim[0], dim[1], activation=activation))
             model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Conv2D(filters=len_classes, kernel_size=1, strides=1))
+        #model.add(Conv2D(filters=, kernel_size=1, strides=1))
+        #model.add(Dropout(dropout_rate))
+        # model.add(BatchNormalization())
+        #model.add(GlobalMaxPooling2D())
+        #model.add(Activation('sigmoid'))
+    # model.add(Dropout(dropout_rate))
+    # Output Layer
+    model.add(Flatten())
+    model.add(Dense(100))
+    model.add(Activation('relu'))
+    # Add Dropout
     model.add(Dropout(dropout_rate))
-    model.add(BatchNormalization())
-    model.add(GlobalMaxPooling2D())
-    model.add(Activation('softmax'))
+
+    model.add(Dense(len_classes-1))
+    model.add(Activation('sigmoid'))
     return model
 
 def sample_architecture(min_layers=1, max_layers=5, min_filters=32, max_filters=512, min_kernel=3, max_kernel=5):
@@ -55,34 +78,24 @@ def breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers,
                 child.append(parent2[i])
     return mutate_architecture(child, mutation_rate, min_layers, max_layers, min_filters, max_filters, min_kernel, max_kernel)
 
-def get_data(train_dir,validation_dir,batch_size=128,test_train_split=0.2):
-    train_data = image_dataset_from_directory(\
-      train_dir,color_mode="grayscale",image_size=(256,256) ,\
-      subset='training',seed=12, validation_split=test_train_split,\
-      batch_size=batch_size)
-    validation_data = image_dataset_from_directory(validation_dir,
-      color_mode="grayscale",image_size=(256,256), subset='validation',seed=12,\
-      validation_split=test_train_split,batch_size=batch_size)
-    return train_data,validation_data
-
 #Train the model on the dataset and evaluate its performance.
 def train_and_evaluate_model(model,epochs=10, train_dir=None,X_train=None, y_train=None,\
                              X_test=None,y_test=None):
     """Function to train and evaluate a model."""
     if train_dir is not None:
-        train_data,validation_data=get_data(train_dir,train_dir)
-        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        #train_data,validation_data=get_data(train_dir,train_dir)
+        model.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["Accuracy"])
+        # print(model.summary())
         history = model.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data)
         # return history
         # Extract the accuracy from the history object
-        acc = history.history['val_accuracy'][len(history.history['val_accuracy'])-1]
+        acc = history.history['val_binary_accuracy'][len(history.history['val_binary_accuracy'])-1]
         return acc
     else:
-        model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+        model.compile(loss="BinaryCrossentropy", optimizer='Adam', metrics=["Accuracy"])
         model.fit(X_train, y_train, epochs=epochs, batch_size=32, verbose=1)
         scores = model.evaluate(X_test, y_test, verbose=1)
         return scores[1]  # Return accuracy
-    
     
 # 4) Define the genetic algorithm to evolve the architecture.
 def genetic_algorithm(train_dir,epochs,population_size=20,len_classes=3, num_generations=10, mutation_rate=0.1,\
@@ -121,19 +134,16 @@ def genetic_algorithm(train_dir,epochs,population_size=20,len_classes=3, num_gen
     # Return the best architecture
     return population[0]
 
-train_dir="/home/shubhransu_etc/project_sys22/data/thermogram/train"
-
-# input_shape = (200, 100,3) 
-# Run the genetic algorithm to evolve the architecture
-best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10, num_generations=10, mutation_rate=0.15,\
-                      min_layers=1, max_layers=8, min_filters=32, max_filters=512,\
+best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=5, num_generations=10, mutation_rate=0.15,\
+                      min_layers=1, max_layers=6, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5)
 
 best_model2=build_model(best_architecture2)
 
 train_data,validation_data=get_data(train_dir,train_dir)
-best_model2.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-history = best_model2.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data)       
+best_model2.compile(loss="BinaryCrossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
 
+history = best_model2.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data)      
 
-best_model2.save('/home/shubhransu_etc/hnas_major/models/hnas_stable_1_best')
+np.save('hnas_0_history.npy',history.history)
+best_model2.save('hnas_stable_1_best')
