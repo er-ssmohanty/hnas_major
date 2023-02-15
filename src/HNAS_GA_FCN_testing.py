@@ -84,19 +84,21 @@ def train_and_evaluate_model(model,epochs=10, train_dir=None,X_train=None, y_tra
     """Function to train and evaluate a model."""
     if train_dir is not None:
         #train_data,validation_data=get_data(train_dir,train_dir)
-        model.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["Accuracy"])
-        # print(model.summary())
+        model.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
+        print(model.summary())
         history = model.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data)
         # return history
+        print(history.history.keys())
         # Extract the accuracy from the history object
         acc = history.history['val_binary_accuracy'][len(history.history['val_binary_accuracy'])-1]
         return acc
     else:
-        model.compile(loss="BinaryCrossentropy", optimizer='Adam', metrics=["Accuracy"])
+        model.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
         model.fit(X_train, y_train, epochs=epochs, batch_size=32, verbose=1)
         scores = model.evaluate(X_test, y_test, verbose=1)
         return scores[1]  # Return accuracy
-    
+
+
 # 4) Define the genetic algorithm to evolve the architecture.
 def genetic_algorithm(train_dir,epochs,population_size=20,len_classes=3, num_generations=10, mutation_rate=0.1,\
                       min_layers=1, max_layers=5, min_filters=32, max_filters=512,\
@@ -134,16 +136,16 @@ def genetic_algorithm(train_dir,epochs,population_size=20,len_classes=3, num_gen
     # Return the best architecture
     return population[0]
 
-best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=5, num_generations=10, mutation_rate=0.15,\
+best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=3, num_generations=10, mutation_rate=0.15,\
                       min_layers=1, max_layers=6, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5)
 
 best_model2=build_model(best_architecture2)
 
 train_data,validation_data=get_data(train_dir,train_dir)
-best_model2.compile(loss="BinaryCrossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
+best_model2.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
 
 history = best_model2.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data)      
 
-np.save('hnas_0_history.npy',history.history)
+np.save('hnas_1_history.npy',history.history)
 best_model2.save('hnas_stable_1_best')
