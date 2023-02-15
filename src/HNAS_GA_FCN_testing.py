@@ -26,7 +26,7 @@ validation_data = image_dataset_from_directory(validation_dir,
       validation_split=test_train_split,batch_size=batch_size)
 
 def build_model(layer_dims, input_shape=(256,256,3,),len_classes=3, dropout_rate=0.2,activation='relu'):
-    #print(1)
+    print(1)
     """Function to build a model with specified layer dimensions and activation function."""
     model = Sequential()
     for i, dim in enumerate(layer_dims):
@@ -35,7 +35,8 @@ def build_model(layer_dims, input_shape=(256,256,3,),len_classes=3, dropout_rate
             model.add(MaxPooling2D(pool_size=(2, 2)))
         else:
             model.add(Conv2D(dim[0], dim[1], activation=activation))
-            model.add(MaxPooling2D(pool_size=(2, 2)))
+            if i%2!=0:
+                model.add(MaxPooling2D(pool_size=(2, 2)))
         #model.add(Conv2D(filters=, kernel_size=1, strides=1))
         #model.add(Dropout(dropout_rate))
         # model.add(BatchNormalization())
