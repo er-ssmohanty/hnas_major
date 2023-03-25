@@ -84,10 +84,18 @@ def breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers,
         len_par1=1
     for i in range(len_par1):
         if np.random.rand() < 0.5:
-            child.append(parent1[i])
+            try:
+                parent1_i=parent1[i]
+            except IndexError:
+                parent1_i=parent1
+            child.append(parent1_i)
         else:
             if i < len(parent2):
-                child.append(parent2[i])
+                try:
+                    parent2_i=parent2[i]
+                except IndexError:
+                    parent2_i=parent2
+                child.append(parent2_i)
     return mutate_architecture(child, mutation_rate, min_layers, max_layers, min_filters, max_filters, min_kernel, max_kernel)
 
 
