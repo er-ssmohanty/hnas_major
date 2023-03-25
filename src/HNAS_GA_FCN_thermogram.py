@@ -17,7 +17,7 @@ from tensorflow.keras.preprocessing import image_dataset_from_directory
 
 train_dir="/notebooks/thermograms/Desenvolvimento da Metodologia"
 validation_dir=train_dir
-batch_size=32
+batch_size=16
 test_train_split=0.2
 train_data = image_dataset_from_directory(\
       train_dir,color_mode="grayscale",image_size=(227,227) ,\
@@ -35,11 +35,11 @@ def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate
         if i == 0:
             model.add(BatchNormalization(input_shape=input_shape))
             model.add(Conv2D(dim[0], dim[1],  activation=activation))
-            model.add(MaxPooling2D(pool_size=(2, 2)))
+            model.add(MaxPooling2D(pool_size=(2, 2),strides=2))
         else:
             model.add(Conv2D(dim[0], dim[1], activation=activation))
             if True:#i%2!=0:
-                model.add(MaxPooling2D(pool_size=(2, 2)))
+                model.add(MaxPooling2D(pool_size=(2, 2),strides=2))
         #model.add(Conv2D(filters=, kernel_size=1, strides=1))
         #model.add(Dropout(dropout_rate))
         # model.add(BatchNormalization())
@@ -77,7 +77,12 @@ def mutate_architecture(layer_dims, mutation_rate=0.1, min_layers=1, max_layers=
 def breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers, min_filters, max_filters, min_kernel, max_kernel):
     """Function to breed two parent architectures to produce a child architecture."""
     child = []
-    for i in range(len(parent1)):
+    q=np.int64(12.32)
+    if type(parent1)!=type(q):
+        len_par1=len(parent1)
+    else:
+        len_par1=1
+    for i in range(len_par1):
         if np.random.rand() < 0.5:
             child.append(parent1[i])
         else:
@@ -94,7 +99,7 @@ def train_and_evaluate_model(model,epochs=10, train_dir=None,X_train=None, y_tra
         #train_data,validation_data=get_data(train_dir,train_dir)
         model.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
         # print(model.summary())
-        callback = EarlyStopping(monitor='val_loss', patience=1)
+        callback = EarlyStopping(monitor='val_loss', patience=2)
 
         history = model.fit(train_data, epochs=epochs, callbacks=[callback],verbose=1,validation_data=validation_data)
         # return history
@@ -148,7 +153,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
         print('Breeding new generation...')
         new_population = parents.copy()
         while len(new_population) < population_size:
-            parent1, parent2 = np.random.choice(parents, 2)
+            parent1, parent2 = np.random.choice(np.ravel(parents), 2)
             child = breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers, min_filters, max_filters, min_kernel, max_kernel)
             new_population.append(child)
 
@@ -157,7 +162,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
         scores = [score_population[i] for i in parent_indices] + [None]*(population_size-num_parents)
 
         # Save checkpoint
-        if checkpoint_file and (generation+1) % save_after == 0:
+        if checkpoint_file:
             data = {'population': population, 'scores': scores, 'generation': generation+1, 'population_id': start_population}
             with open(checkpoint_file, 'wb') as f:
                 pickle.dump(data, f)
@@ -179,7 +184,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
     return best_arch, best_score
 
 
-best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=7,population_size=10, num_generations=100, mutation_rate=0.1,\
+best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=15, num_generations=30, mutation_rate=0.1,\
                       min_layers=1, max_layers=5, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5, checkpoint_file='/notebooks/hnas_major/models/checkpoint_file.pkl')
 
