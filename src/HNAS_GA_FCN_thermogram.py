@@ -31,13 +31,26 @@ validation_data = image_dataset_from_directory(validation_dir,
 def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate=0.2,activation='relu'):
     """Function to build a model with specified layer dimensions and activation function."""
     model = Sequential()
+    print(layer_dims)
     for i, dim in enumerate(layer_dims):
         if i == 0:
             model.add(BatchNormalization(input_shape=input_shape))
-            model.add(Conv2D(dim[0], dim[1],  activation=activation))
+            if type(dim)==type(np.int64(1)):
+                dim0=dim
+                dim1=3
+            else:
+                dim0=dim[0]
+                dim1=dim[1]
+            model.add(Conv2D(dim0, dim1,  activation=activation))
             model.add(MaxPooling2D(pool_size=(2, 2),strides=2))
         else:
-            model.add(Conv2D(dim[0], dim[1], activation=activation))
+            if type(dim)==type(np.int64(1)):
+                dim0=dim
+                dim1=3
+            else:
+                dim0=dim[0]
+                dim1=dim[1]
+            model.add(Conv2D(dim0, dim1, activation=activation))
             if True:#i%2!=0:
                 model.add(MaxPooling2D(pool_size=(2, 2),strides=2))
         #model.add(Conv2D(filters=, kernel_size=1, strides=1))
