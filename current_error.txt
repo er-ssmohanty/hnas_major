@@ -1,0 +1,72 @@
+Evaluating architecture 13/15
+[(509, 5)]
+Epoch 1/10
+2023-03-26 20:37:41.511039: W tensorflow/core/common_runtime/bfc_allocator.cc:479] Allocator (GPU_0_bfc) ran out of memory trying to allocate 1.51GiB (rounded to 1619972096)requested by op sequential_12/conv2d_18/Conv2D
+If the cause is memory fragmentation maybe the environment variable 'TF_GPU_ALLOCATOR=cuda_malloc_async' will improve the situation. 
+Current allocation summary follows.
+Current allocation summary follows.
+2023-03-26 20:37:41.511449: W tensorflow/core/common_runtime/bfc_allocator.cc:491] **********_**************************************************************************************___
+2023-03-26 20:37:41.511556: W tensorflow/core/framework/op_kernel.cc:1745] OP_REQUIRES failed at conv_ops.cc:685 : RESOURCE_EXHAUSTED: OOM when allocating tensor with shape[16,509,223,223] and type float on /job:localhost/replica:0/task:0/device:GPU:0 by allocator GPU_0_bfc
+Traceback (most recent call last):
+  File "/notebooks/hnas_major/src/HNAS_GA_FCN_thermogram.py", line 212, in <module>
+    best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=15, num_generations=30, mutation_rate=0.1,\
+  File "/notebooks/hnas_major/src/HNAS_GA_FCN_thermogram.py", line 201, in genetic_algorithm
+    score = train_and_evaluate_model(model, epochs, train_dir=train_dir)
+  File "/notebooks/hnas_major/src/HNAS_GA_FCN_thermogram.py", line 129, in train_and_evaluate_model
+    history = model.fit(train_data, epochs=epochs, callbacks=[callback],verbose=1,validation_data=validation_data)
+  File "/usr/local/lib/python3.9/dist-packages/keras/utils/traceback_utils.py", line 67, in error_handler
+    raise e.with_traceback(filtered_tb) from None
+  File "/usr/local/lib/python3.9/dist-packages/tensorflow/python/eager/execute.py", line 54, in quick_execute
+    tensors = pywrap_tfe.TFE_Py_Execute(ctx._handle, device_name, op_name,
+tensorflow.python.framework.errors_impl.ResourceExhaustedError: Graph execution error:
+
+Detected at node 'sequential_12/conv2d_18/Conv2D' defined at (most recent call last):
+    File "/notebooks/hnas_major/src/HNAS_GA_FCN_thermogram.py", line 212, in <module>
+      best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=15, num_generations=30, mutation_rate=0.1,\
+    File "/notebooks/hnas_major/src/HNAS_GA_FCN_thermogram.py", line 201, in genetic_algorithm
+      score = train_and_evaluate_model(model, epochs, train_dir=train_dir)
+    File "/notebooks/hnas_major/src/HNAS_GA_FCN_thermogram.py", line 129, in train_and_evaluate_model
+      history = model.fit(train_data, epochs=epochs, callbacks=[callback],verbose=1,validation_data=validation_data)
+    File "/usr/local/lib/python3.9/dist-packages/keras/utils/traceback_utils.py", line 64, in error_handler
+      return fn(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/training.py", line 1409, in fit
+      tmp_logs = self.train_function(iterator)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/training.py", line 1051, in train_function
+      return step_function(self, iterator)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/training.py", line 1040, in step_function
+      outputs = model.distribute_strategy.run(run_step, args=(data,))
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/training.py", line 1030, in run_step
+      outputs = model.train_step(data)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/training.py", line 889, in train_step
+      y_pred = self(x, training=True)
+    File "/usr/local/lib/python3.9/dist-packages/keras/utils/traceback_utils.py", line 64, in error_handler
+      return fn(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/training.py", line 490, in __call__
+      return super().__call__(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/utils/traceback_utils.py", line 64, in error_handler
+      return fn(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/base_layer.py", line 1014, in __call__
+      outputs = call_fn(inputs, *args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/utils/traceback_utils.py", line 92, in error_handler
+      return fn(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/sequential.py", line 374, in call
+      return super(Sequential, self).call(inputs, training=training, mask=mask)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/functional.py", line 458, in call
+      return self._run_internal_graph(
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/functional.py", line 596, in _run_internal_graph
+      outputs = node.layer(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/utils/traceback_utils.py", line 64, in error_handler
+      return fn(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/engine/base_layer.py", line 1014, in __call__
+      outputs = call_fn(inputs, *args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/utils/traceback_utils.py", line 92, in error_handler
+      return fn(*args, **kwargs)
+    File "/usr/local/lib/python3.9/dist-packages/keras/layers/convolutional/base_conv.py", line 250, in call
+      outputs = self.convolution_op(inputs, self.kernel)
+    File "/usr/local/lib/python3.9/dist-packages/keras/layers/convolutional/base_conv.py", line 225, in convolution_op
+      return tf.nn.convolution(
+Node: 'sequential_12/conv2d_18/Conv2D'
+OOM when allocating tensor with shape[16,509,223,223] and type float on /job:localhost/replica:0/task:0/device:GPU:0 by allocator GPU_0_bfc
+         [[{{node sequential_12/conv2d_18/Conv2D}}]]
+Hint: If you want to see a list of allocated tensors when OOM happens, add report_tensor_allocations_upon_oom to RunOptions for current allocation info. This isn't available when running in Eager mode.
+ [Op:__inference_train_function_36491]
