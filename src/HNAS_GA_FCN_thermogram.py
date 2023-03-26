@@ -90,7 +90,11 @@ def breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers,
                 parent1_i=parent1
             child.append(parent1_i)
         else:
-            if i < len(parent2):
+            if type(parent2)!=type(q):
+                len_parent2=len(parent2)
+            else:
+                len_parent2=1
+            if i < len_parent2:
                 try:
                     parent2_i=parent2[i]
                 except IndexError:
@@ -196,7 +200,11 @@ best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=
                       min_layers=1, max_layers=5, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5, checkpoint_file='/notebooks/hnas_major/models/checkpoint_file.pkl')
 
-print(best_architecture2.summary())
+best_archwrite=open('best_architecture.txt','w')
+best_archwrite.write(str(best_archwrite))
+best_archwrite.close()
+
+print(best_architecture2)
 best_model2=build_model(best_architecture2,input_shape=(227,227,1,), len_classes=2)
 best_model2.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
 
