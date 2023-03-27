@@ -4,6 +4,7 @@ from keras.models import Sequential
 import random
 import os
 import pickle
+import time
 import pandas as pd
 from PIL import Image
 import numpy as np
@@ -41,6 +42,10 @@ def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate
             else:
                 dim0=dim[0]
                 dim1=dim[1]
+            if dim0>450:
+                dim0=128
+                dim1=4
+                time.sleep(60)
             model.add(Conv2D(dim0, dim1,  activation=activation))
             model.add(MaxPooling2D(pool_size=(2, 2),strides=2))
         else:
@@ -50,6 +55,10 @@ def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate
             else:
                 dim0=dim[0]
                 dim1=dim[1]
+            if dim0>450:
+                dim0=128
+                dim1=4
+                time.sleep(60)
             model.add(Conv2D(dim0, dim1, activation=activation))
             if True:#i%2!=0:
                 model.add(MaxPooling2D(pool_size=(2, 2),strides=2))
