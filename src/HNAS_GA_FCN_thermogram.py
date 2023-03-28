@@ -7,6 +7,7 @@ import pickle
 import time
 import pandas as pd
 from PIL import Image
+from keras.callbacks import EarlyStopping
 import numpy as np
 import matplotlib.pyplot as plt
 from keras.layers import BatchNormalization
@@ -33,6 +34,8 @@ def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate
     """Function to build a model with specified layer dimensions and activation function."""
     model = Sequential()
     print(layer_dims)
+    if type(layer_dims)==type(tuple([12])):
+        layer_dims=layer_dims[0]
     for i, dim in enumerate(layer_dims):
         if i == 0:
             model.add(BatchNormalization(input_shape=input_shape))
@@ -42,21 +45,25 @@ def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate
             else:
                 dim0=dim[0]
                 dim1=dim[1]
+            if (type(dim0)!=type(np.int64(1))) and (type(dim0)!=type(int(1))):
+                continue            
             if dim0>450:
-                dim0=128
+                dim0=256
                 dim1=4
                 time.sleep(60)
             model.add(Conv2D(dim0, dim1,  activation=activation))
             model.add(MaxPooling2D(pool_size=(2, 2),strides=2))
         else:
+            if (type(dim0)!=type(np.int64(1))) and (type(dim0)!=type(int(1))):
+                continue
             if type(dim)==type(np.int64(1)):
                 dim0=dim
                 dim1=3
             else:
                 dim0=dim[0]
                 dim1=dim[1]
-            if dim0>450:
-                dim0=128
+            if dim0>450 and i==1:
+                dim0=256
                 dim1=4
                 time.sleep(60)
             model.add(Conv2D(dim0, dim1, activation=activation))
@@ -173,7 +180,10 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
         print('Evaluating population...')
         score_population = []
         for i, arch in enumerate(population):
+            print(type(population))
             print(f'Evaluating architecture {i+1}/{len(population)}')
+            if i>12:
+                time.sleep(58)
             model = build_model(arch, input_shape=(227,227,1,), len_classes=len_classes)
             score = train_and_evaluate_model(model, epochs, train_dir=train_dir)
             score_population.append(score)
@@ -204,6 +214,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
     # Evaluate final population
     print('Evaluating final population...')
     score_population = []
+    population = list(map(list, set(map(frozenset, population))))
     for i, arch in enumerate(population):
         print(f'Evaluating architecture {i+1}/{len(population)}')
         model = build_model(arch, input_shape=(227,227,1,), len_classes=len_classes)
@@ -222,15 +233,17 @@ best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=
                       min_layers=1, max_layers=5, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5, checkpoint_file='/notebooks/hnas_major/models/checkpoint_file.pkl')
 
-best_archwrite=open('best_architecture.txt','w')
-best_archwrite.write(str(best_archwrite))
-best_archwrite.close()
+epochs=100
+callback = EarlyStopping(monitor='val_loss', patience=3)
 
 print(best_architecture2)
 best_model2=build_model(best_architecture2,input_shape=(227,227,1,), len_classes=2)
 best_model2.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["BinaryAccuracy"])
 
 
-best_model2.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data)
+historyX=best_model2.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data, callbacks=[callback])
+
+with open('history_best_thermogram_base_hnas', 'wb') as file_pi:
+    pickle.dump(historyX.history, file_pi)
 
 best_model2.save("/notebooks/hnas_major/models/hnas_thermogram_fcn_0")
