@@ -89,8 +89,8 @@ def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate
 
 def sample_architecture(min_layers=1, max_layers=5, min_filters=32, max_filters=512, min_kernel=3, max_kernel=5):
     """Function to sample a random architecture from the search space."""
-    num_layers = random.randint(min_layers, max_layers)
-    layer_dims = [(random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel)) for _ in range(num_layers)]
+    num_layers = np.random.randint(min_layers, max_layers+1)
+    layer_dims = [(np.random.randint(min_filters, max_filters+1), np.random.randint(min_kernel, max_kernel+1)) for _ in range(num_layers)]
     return layer_dims
 
 
