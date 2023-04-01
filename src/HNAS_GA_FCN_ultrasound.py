@@ -85,7 +85,7 @@ def build_model(layer_dims, input_shape=(227,227,3,),len_classes=3, dropout_rate
     model.add(Activation('sigmoid'))
     
     return model
-
+                
 
 def sample_architecture(min_layers=1, max_layers=5, min_filters=32, max_filters=512, min_kernel=3, max_kernel=5):
     """Function to sample a random architecture from the search space."""
@@ -94,13 +94,40 @@ def sample_architecture(min_layers=1, max_layers=5, min_filters=32, max_filters=
     return layer_dims
 
 
+# def mutate_architecture(layer_dims, mutation_rate=0.1, min_layers=1, max_layers=5, min_filters=32, max_filters=512, min_kernel=3, max_kernel=5):
+#     """Function to mutate an architecture by randomly modifying some of its layer dimensions."""
+#     num_layers = len(layer_dims)
+#     for i in range(num_layers):
+#         if np.random.rand() < mutation_rate:
+#             layer_dims[i] = (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel))
+#     return layer_dims
+
 def mutate_architecture(layer_dims, mutation_rate=0.1, min_layers=1, max_layers=5, min_filters=32, max_filters=512, min_kernel=3, max_kernel=5):
     """Function to mutate an architecture by randomly modifying some of its layer dimensions."""
     num_layers = len(layer_dims)
+    
+    # Randomly add or remove layers
+    if np.random.rand() < mutation_rate:
+        if num_layers == max_layers:
+            # Remove a layer if maximum number of layers is already reached
+            layer_dims.pop(random.randint(0, num_layers-1))
+        elif num_layers == min_layers:
+            # Add a layer if minimum number of layers is already reached
+            layer_dims.insert(random.randint(0, num_layers), (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel)))
+        else:
+            # Add or remove a layer randomly
+            if np.random.rand() < 0.5:
+                layer_dims.pop(random.randint(0, num_layers-1))
+            else:
+                layer_dims.insert(random.randint(0, num_layers), (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel)))
+    
+    # Randomly modify existing layer dimensions
     for i in range(num_layers):
         if np.random.rand() < mutation_rate:
             layer_dims[i] = (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel))
+    
     return layer_dims
+
 
 
 def breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers, min_filters, max_filters, min_kernel, max_kernel):
