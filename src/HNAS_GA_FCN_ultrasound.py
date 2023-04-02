@@ -120,7 +120,7 @@ def mutate_architecture(layer_dims, mutation_rate=0.1, min_layers=1, max_layers=
                 layer_dims.pop(random.randint(0, num_layers-1))
             else:
                 layer_dims.insert(random.randint(0, num_layers), (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel)))
-    
+    num_layers = len(layer_dims)
     # Randomly modify existing layer dimensions
     for i in range(num_layers):
         if np.random.rand() < mutation_rate:
@@ -205,6 +205,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
 
         # Evaluate population
         print('Evaluating population...')
+        population = list(map(list, set(map(frozenset, population))))
         score_population = []
         for i, arch in enumerate(population):
             print(type(population))
@@ -256,7 +257,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
     return best_arch, best_score
 
 
-best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=15, num_generations=40, mutation_rate=0.2,\
+best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=20, num_generations=40, mutation_rate=0.2,\
                       min_layers=3, max_layers=7, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5, checkpoint_file='/notebooks/hnas_major/models/checkpoint_file_ultrasound.pkl')
 
