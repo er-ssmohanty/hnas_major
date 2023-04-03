@@ -217,7 +217,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
             score_population.append(score)
 
         # Select top 20% parents
-        num_parents = int(population_size * 0.2)
+        num_parents = int(len(population) * 0.2)
         parent_indices = np.argsort(score_population)[-num_parents:]
         parents = [population[i] for i in parent_indices]
 
@@ -257,7 +257,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
     return best_arch, best_score
 
 
-best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=20, num_generations=40, mutation_rate=0.2,\
+best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=20, num_generations=40, mutation_rate=0.5,\
                       min_layers=3, max_layers=7, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5, checkpoint_file='/notebooks/hnas_major/models/checkpoint_file_ultrasound.pkl')
 
