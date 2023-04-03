@@ -210,14 +210,12 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
         for i, arch in enumerate(population):
             print(type(population))
             print(f'Evaluating architecture {i+1}/{len(population)}')
-            if i>12:
-                time.sleep(58)
             model = build_model(arch, input_shape=(227,227,1,), len_classes=len_classes)
             score = train_and_evaluate_model(model, epochs, train_dir=train_dir)
             score_population.append(score)
 
         # Select top 20% parents
-        num_parents = int(len(population) * 0.2)
+        num_parents = int(np.ceil(len(population)*0.15)) #int(len(population) * 0.1)
         parent_indices = np.argsort(score_population)[-num_parents:]
         parents = [population[i] for i in parent_indices]
 
@@ -225,7 +223,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
         print('Breeding new generation...')
         new_population = parents.copy()
         while len(new_population) < population_size:
-            parent1, parent2 = np.random.choice(np.ravel(parents), 2)
+            parent1, parent2 = np.random.choice(parents, 2)
             child = breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers, min_filters, max_filters, min_kernel, max_kernel)
             new_population.append(child)
 
@@ -257,7 +255,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
     return best_arch, best_score
 
 
-best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=20, num_generations=40, mutation_rate=0.5,\
+best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=30, num_generations=40, mutation_rate=0.5,\
                       min_layers=3, max_layers=7, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5, checkpoint_file='/notebooks/hnas_major/models/checkpoint_file_ultrasound.pkl')
 
