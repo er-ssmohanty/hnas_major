@@ -110,21 +110,21 @@ def mutate_architecture(layer_dims, mutation_rate=0.1, min_layers=1, max_layers=
     if np.random.rand() < mutation_rate:
         if num_layers == max_layers:
             # Remove a layer if maximum number of layers is already reached
-            layer_dims.pop(random.randint(0, num_layers-1))
+            layer_dims.pop(np.random.randint(num_layers))
         elif num_layers == min_layers:
             # Add a layer if minimum number of layers is already reached
-            layer_dims.insert(random.randint(0, num_layers), (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel)))
+            layer_dims.insert(np.random.randint(num_layers+1), (np.random.randint(min_filters, max_filters+1), np.random.randint(min_kernel, max_kernel+1)))
         else:
             # Add or remove a layer randomly
             if np.random.rand() < 0.5:
-                layer_dims.pop(random.randint(0, num_layers-1))
+                layer_dims.pop(np.random.randint(num_layers))
             else:
-                layer_dims.insert(random.randint(0, num_layers), (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel)))
+                layer_dims.insert(np.random.randint(num_layers+1), (np.random.randint(min_filters, max_filters+1), np.random.randint(min_kernel, max_kernel+1)))
     num_layers = len(layer_dims)
     # Randomly modify existing layer dimensions
     for i in range(num_layers):
         if np.random.rand() < mutation_rate:
-            layer_dims[i] = (random.randint(min_filters, max_filters), random.randint(min_kernel, max_kernel))
+            layer_dims[i] = (np.random.randint(min_filters, max_filters+1), np.random.randint(min_kernel, max_kernel+1))
     
     return layer_dims
 
