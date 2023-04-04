@@ -223,7 +223,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
         print('Breeding new generation...')
         new_population = parents.copy()
         while len(new_population) < population_size:
-            parent1, parent2 = np.random.choice(parents, 2)
+            parent1, parent2 = np.random.choice(np.ravel(parents), 2)
             child = breed_architectures(parent1, parent2, mutation_rate, min_layers, max_layers, min_filters, max_filters, min_kernel, max_kernel)
             new_population.append(child)
 
