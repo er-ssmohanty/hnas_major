@@ -264,7 +264,7 @@ def genetic_algorithm(train_dir, epochs, population_size=20, len_classes=3, num_
     return best_arch, best_score
 
 
-best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=30, num_generations=40, mutation_rate=0.5,\
+best_architecture2 = genetic_algorithm(train_dir=train_dir,len_classes=2,epochs=10,population_size=30, num_generations=50, mutation_rate=0.33,\
                       min_layers=3, max_layers=7, min_filters=32, max_filters=512,\
                       min_kernel=3, max_kernel=5, checkpoint_file='/notebooks/hnas_major/models/checkpoint_file_ultrasound.pkl')
 
