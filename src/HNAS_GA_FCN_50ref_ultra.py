@@ -282,7 +282,7 @@ best_model2.compile(loss="binary_crossentropy", optimizer='Adam', metrics=["Bina
 
 historyX=best_model2.fit(train_data, epochs=epochs, verbose=1,validation_data=validation_data, callbacks=[callback])
 
-with open('history_best_50ref_ultra_base_hnas', 'w') as file_pi:
-    pickle.dump(historyX.history, file_pi)
+# with open('history_best_50ref_ultra_base_hnas', 'w') as file_pi:
+#     pickle.dump(historyX.history, file_pi)
 
 best_model2.save("/notebooks/hnas_major/models/hnas_50ref_ultra_fcn_0")
